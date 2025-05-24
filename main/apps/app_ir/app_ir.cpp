@@ -129,6 +129,7 @@ void AppIR::_update_cursor()
 
 void AppIR::_update_state()
 {
+    bool extended_code = false;
     if (_data.current_state == state_init)
     {
         _canvas->setTextColor(TFT_ORANGE, THEME_COLOR_BG);
@@ -150,10 +151,10 @@ void AppIR::_update_state()
         int ir_addr = 0;
         int ir_data = 0;
         if(_data.repl_input_buffer=="o"){
-            ir_addr=0xEAC7;
-            ir_data=0x17E8;
+            ir_addr=0xC7EA;
+            ir_data=0xE817;
             
-            is_parse_ok = true;
+            is_parse_ok = extended_code = true;
         }else{
             _customSplit(_data.repl_input_buffer, ',', _data.parse_result);
 
@@ -186,10 +187,12 @@ void AppIR::_update_state()
         // Send the shit out 
         if (is_parse_ok)
         {
-            ir_wrap_send((uint16_t)ir_addr, (uint16_t)ir_data);
+            extended_code ?
+                ir_wrap_extended_send((uint16_t)ir_addr, (uint16_t)ir_data) 
+                :ir_wrap_send((uint8_t) ir_addr, (uint16_t)ir_data);
 
             _canvas->setTextColor(TFT_GREEN, THEME_COLOR_BG);
-            _canvas->printf("Msg Send:\naddr: 0x%02X data: 0x%02X\n", (uint8_t)ir_addr, (uint8_t)ir_data);
+            _canvas->printf("Msg Send:\naddr: 0x%02X data: 0x%02X\n", (uint16_t)ir_addr, (uint16_t)ir_data);
             _canvas->setTextColor(THEME_COLOR_REPL_TEXT, THEME_COLOR_BG);
         }
         else 
