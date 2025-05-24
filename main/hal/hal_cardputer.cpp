@@ -174,8 +174,8 @@ void HalCardputer::SpeakerTest(HalCardputer* hal)
 {
     spdlog::info("speaker test");
 
-    // hal->Speaker()->setVolume(32);
-    hal->Speaker()->setVolume(128);
+    hal->Speaker()->setVolume(32);
+    // hal->Speaker()->setVolume(128);
 
     while (1)
     {

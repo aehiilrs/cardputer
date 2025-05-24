@@ -149,39 +149,44 @@ void AppIR::_update_state()
         bool is_parse_ok = false;
         int ir_addr = 0;
         int ir_data = 0;
+        if(_data.repl_input_buffer=="o"){
+            ir_addr=0xEAC7;
+            ir_data=0x17E8;
+            
+            is_parse_ok = true;
+        }else{
+            _customSplit(_data.repl_input_buffer, ',', _data.parse_result);
 
-        _customSplit(_data.repl_input_buffer, ',', _data.parse_result);
-
-        spdlog::info("parse get {}:", _data.parse_result.size());
-        for (const auto& i : _data.parse_result)
-            spdlog::info("{}", i);
-        
-        if (_data.parse_result.size() >= 2)
-        {
-            // https://docs.espressif.com/projects/esp-idf/zh_CN/v4.4.6/esp32/api-guides/error-handling.html
-            try
+            spdlog::info("parse get {}:", _data.parse_result.size());
+            for (const auto& i : _data.parse_result)
+                spdlog::info("{}", i);
+            
+            if (_data.parse_result.size() >= 2)
             {
-                ir_addr = std::stoi(_data.parse_result[0]);
-                ir_data = std::stoi(_data.parse_result[1]);
-                spdlog::info("get addr: {} data: {}", ir_addr, ir_data);
+                // https://docs.espressif.com/projects/esp-idf/zh_CN/v4.4.6/esp32/api-guides/error-handling.html
+                try
+                {
+                    ir_addr = std::stoi(_data.parse_result[0]);
+                    ir_data = std::stoi(_data.parse_result[1]);
+                    spdlog::info("get addr: {} data: {}", ir_addr, ir_data);
 
-                is_parse_ok = true;
-            }
-            catch(const std::exception& e)
-            {
-                // std::cerr << e.what() << '\n';
-                spdlog::info("parse failed: {}", e.what());
+                    is_parse_ok = true;
+                }
+                catch(const std::exception& e)
+                {
+                    // std::cerr << e.what() << '\n';
+                    spdlog::info("parse failed: {}", e.what());
 
-                is_parse_ok = false;
+                    is_parse_ok = false;
+                }
             }
         }
-
 
 
         // Send the shit out 
         if (is_parse_ok)
         {
-            ir_wrap_send((uint8_t)ir_addr, (uint8_t)ir_data);
+            ir_wrap_send((uint16_t)ir_addr, (uint16_t)ir_data);
 
             _canvas->setTextColor(TFT_GREEN, THEME_COLOR_BG);
             _canvas->printf("Msg Send:\naddr: 0x%02X data: 0x%02X\n", (uint8_t)ir_addr, (uint8_t)ir_data);

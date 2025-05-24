@@ -18,6 +18,7 @@ extern "C" {
 void ir_wrap_init(void);
 void ir_wrap_deinit(void);
 void ir_wrap_send(uint8_t addr, uint8_t cmd);
+void ir_wrap_extended_send(uint16_t addr, uint16_t cmd);
 
 
 #ifdef __cplusplus

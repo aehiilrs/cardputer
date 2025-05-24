@@ -192,6 +192,27 @@ void ir_wrap_send(uint8_t addr, uint8_t cmd)
     // cmd++;
 }
 
+void ir_wrap_extended_send(uint16_t addr, uint16_t cmd)
+{
+    // uint32_t addr = 0x10;
+    // uint32_t cmd = 0x20;
+    rmt_item32_t *items = NULL;
+    size_t length = 0;
+    // ir_builder_t *ir_builder = NULL;
+
+    ESP_LOGI(TAG, "Send command 0x%x to address 0x%x", cmd, addr);
+    // Send new key code
+    ESP_ERROR_CHECK(ir_builder->build_frame(ir_builder, addr, cmd));
+    ESP_ERROR_CHECK(ir_builder->get_result(ir_builder, &items, &length));
+    //To send data according to the waveform items.
+    rmt_write_items(example_tx_channel, items, length, false);
+    // Send repeat code
+    vTaskDelay(pdMS_TO_TICKS(ir_builder->repeat_period_ms));
+    ESP_ERROR_CHECK(ir_builder->build_repeat_frame(ir_builder));
+    ESP_ERROR_CHECK(ir_builder->get_result(ir_builder, &items, &length));
+    rmt_write_items(example_tx_channel, items, length, false);
+    // cmd++;
+}
 
 void ir_wrap_deinit(void)
 {
